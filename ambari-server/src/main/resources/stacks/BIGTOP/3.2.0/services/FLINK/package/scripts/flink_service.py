@@ -46,7 +46,7 @@ def flink_service(name, upgrade_type=None, action=None):
                           action="create_on_execute",
                           owner=params.flink_user,
                           group=params.user_group,
-                          mode=0777,
+                          mode=0o777,
                           recursive_chmod=True
                           )
       params.HdfsResource(None, action="execute")

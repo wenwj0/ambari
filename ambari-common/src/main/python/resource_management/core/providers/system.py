@@ -20,7 +20,7 @@ Ambari Agent
 
 """
 
-from __future__ import with_statement
+
 
 import re
 import os
@@ -73,19 +73,19 @@ def _ensure_metadata(path, user, group, mode=None, cd_access=None, recursive_own
     sudo.chown_recursive(path, _user_entity, _group_entity, recursion_follow_links)
 
   sudo.chown(path, user_entity, group_entity)
-
+  
   if recursive_mode_flags:
     if not isinstance(recursive_mode_flags, dict):
       raise Fail("'recursion_follow_links' value should be a dictionary with 'f' and(or) 'd' key (for file and directory permission flags)")
-
+    
     regexp_to_match = "^({0},)*({0})$".format("[ugoa]+[+=-][rwx]+" )
-    for key, flags in recursive_mode_flags.iteritems():
+    for key, flags in recursive_mode_flags.items():
       if key != 'd' and key != 'f':
         raise Fail("'recursive_mode_flags' with value '%s' has unknown key '%s', only keys 'f' and 'd' are valid" % (str(recursive_mode_flags), str(key)))
-
+          
       if not re.match(regexp_to_match, flags):
         raise Fail("'recursive_mode_flags' found '%s', but should value format have the following format: [ugoa...][[+-=][perms...]...]." % (str(flags)))
-
+    
     assert_not_safemode_folder(path, safemode_folders)
     sudo.chmod_recursive(path, recursive_mode_flags, recursion_follow_links)
 
@@ -95,30 +95,30 @@ def _ensure_metadata(path, user, group, mode=None, cd_access=None, recursive_own
       Logger.info("Changing permission for %s from %o to %o" % (
       path, stat.st_mode, mode))
       sudo.chmod(path, mode)
-
+      
   if cd_access:
     if not re.match("^[ugoa]+$", cd_access):
       raise Fail("'cd_acess' value '%s' is not valid" % (cd_access))
-
+    
     dir_path = re.sub('/+', '/', path)
-    while dir_path and dir_path != os.sep:
+    while dir_path != os.sep:
       if sudo.path_isdir(dir_path):
         sudo.chmod_extended(dir_path, cd_access+"+rx")
-
+        
       dir_path = os.path.split(dir_path)[0]
 
 
 class FileProvider(Provider):
   def action_create(self):
     path = self.resource.path
-
+    
     if sudo.path_isdir(path):
       raise Fail("Applying %s failed, directory with name %s exists" % (self.resource, path))
-
+    
     dirname = os.path.dirname(path)
     if not sudo.path_isdir(dirname):
       raise Fail("Applying %s failed, parent directory %s doesn't exist" % (self.resource, dirname))
-
+    
     write = False
     content = self._get_content()
     if not sudo.path_exists(path):
@@ -160,7 +160,7 @@ class FileProvider(Provider):
     content = self.resource.content
     if content is None:
       return None
-    elif isinstance(content, basestring):
+    elif isinstance(content, str):
       return content
     elif hasattr(content, "__call__"):
       return content()
@@ -192,18 +192,18 @@ class DirectoryProvider(Provider):
           Logger.info("Following the link {0} to {1} to create the directory".format(self.resource.path, path))
 
       if self.resource.create_parents:
-        sudo.makedirs(path, self.resource.mode or 0755)
+        sudo.makedirs(path, self.resource.mode or 0o755)
       else:
         dirname = os.path.dirname(path)
         if not sudo.path_isdir(dirname):
           raise Fail("Applying %s failed, parent directory %s doesn't exist" % (self.resource, dirname))
 
         try:
-          sudo.makedir(path, self.resource.mode or 0755)
+          sudo.makedir(path, self.resource.mode or 0o755)
         except Exception as ex:
           # race condition (somebody created the file before us)
           if "File exists" in str(ex):
-            sudo.makedirs(path, self.resource.mode or 0755)
+            sudo.makedirs(path, self.resource.mode or 0o755)
           else:
             raise
 

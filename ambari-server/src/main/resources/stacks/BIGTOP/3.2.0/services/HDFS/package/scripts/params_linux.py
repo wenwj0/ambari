@@ -258,7 +258,7 @@ namenode_dirs_created_stub_dir = hdfs_log_dir
 namenode_dirs_stub_filename = "namenode_dirs_created"
 
 smoke_hdfs_user_dir = format("/user/{smoke_user}")
-smoke_hdfs_user_mode = 0770
+smoke_hdfs_user_mode = 0o770
 
 hdfs_namenode_format_disabled = default("/configurations/cluster-env/hdfs_namenode_format_disabled", False)
 hdfs_namenode_formatted_mark_suffix = "/namenode-formatted/"

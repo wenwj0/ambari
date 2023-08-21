@@ -54,7 +54,7 @@ def make_tarfile(output_filename, source_dirs):
     for dir in source_dirs:
       for file in os.listdir(dir):
         tar.add(os.path.join(dir,file),arcname=file)
-  os.chmod(output_filename, 0644)
+  os.chmod(output_filename, 0o644)
 
 
 def spark_service(name, upgrade_type=None, action=None):
@@ -78,7 +78,7 @@ def spark_service(name, upgrade_type=None, action=None):
                           action="create_on_execute",
                           owner=params.spark_user,
                           group=params.user_group,
-                          mode=0777,
+                          mode=0o777,
                           recursive_chmod=True
                           )
       params.HdfsResource(None, action="execute")

@@ -164,7 +164,7 @@ hive_user_nproc_limit = default("/configurations/hive-env/hive_user_nproc_limit"
 hive_tar_source = "{0}/{1}/hive/hive.tar.gz".format(STACK_ROOT_PATTERN, STACK_VERSION_PATTERN)
 hive_tar_dest_file = "/{0}/apps/{1}/hive/hive.tar.gz".format(STACK_NAME_PATTERN,STACK_VERSION_PATTERN)
 
-tarballs_mode = 0444
+tarballs_mode = 0o444
 
 purge_tables = "false"
 # Starting from stack version for feature hive_purge_table drop should be executed with purge
@@ -401,7 +401,7 @@ process_name = status_params.process_name
 hive_env_sh_template = config['configurations']['hive-env']['content']
 
 hive_hdfs_user_dir = format("/user/{hive_user}")
-hive_hdfs_user_mode = 0755
+hive_hdfs_user_mode = 0o755
 hive_metastore_warehouse_dir = config['configurations']['hive-site']["hive.metastore.warehouse.dir"]
 hive_metastore_warehouse_external_dir = config['configurations']['hive-site']["hive.metastore.warehouse.external.dir"]
 whs_dir_protocol = urlparse(hive_metastore_warehouse_dir).scheme
@@ -546,9 +546,9 @@ templeton_jar = config['configurations']['webhcat-site']['templeton.jar']
 webhcat_server_host = config['clusterHostInfo']['webhcat_server_hosts']
 
 hcat_hdfs_user_dir = format("/user/{webhcat_user}")
-hcat_hdfs_user_mode = 0755
+hcat_hdfs_user_mode = 0o755
 webhcat_hdfs_user_dir = format("/user/{webhcat_user}")
-webhcat_hdfs_user_mode = 0755
+webhcat_hdfs_user_mode = 0o755
 
 #Webhcat log4j properties
 webhcat_log_maxfilesize = default("/configurations/webhcat-log4j/webhcat_log_maxfilesize", 256)

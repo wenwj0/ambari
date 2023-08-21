@@ -87,7 +87,7 @@ class StompCLI(Cmd, ConnectionListener):
         self.__sysout("\r  \r", end='')
         if self.verbose:
             self.__sysout(frame_type)
-            for k, v in headers.items():
+            for k, v in list(headers.items()):
                 self.__sysout('%s: %s' % (k, v))
         if self.prompt != '':
             self.__sysout('')

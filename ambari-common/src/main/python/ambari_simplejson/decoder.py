@@ -1,6 +1,5 @@
 """Implementation of JSONDecoder
 """
-from __future__ import absolute_import
 import re
 import sys
 import struct
@@ -48,8 +47,8 @@ _CONSTANTS = {
 
 STRINGCHUNK = re.compile(r'(.*?)(["\\\x00-\x1f])', FLAGS)
 BACKSLASH = {
-    '"': u'"', '\\': u'\\', '/': u'/',
-    'b': u'\b', 'f': u'\f', 'n': u'\n', 'r': u'\r', 't': u'\t',
+    '"': '"', '\\': '\\', '/': '/',
+    'b': '\b', 'f': '\f', 'n': '\n', 'r': '\r', 't': '\t',
 }
 
 DEFAULT_ENCODING = "utf-8"

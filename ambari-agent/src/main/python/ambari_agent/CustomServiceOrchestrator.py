@@ -25,10 +25,11 @@ import os
 import sys
 import uuid
 import logging
+import subprocess
 import threading
 import ambari_simplejson as json
 from collections import defaultdict
-from ConfigParser import NoOptionError
+from configparser import NoOptionError
 
 from ambari_commons import shell
 from ambari_commons.constants import AGENT_TMP_DIR
@@ -122,7 +123,7 @@ class CustomServiceOrchestrator(object):
 
   def cancel_command(self, task_id, reason):
     with self.commands_in_progress_lock:
-      if task_id in self.commands_in_progress.keys():
+      if task_id in list(self.commands_in_progress.keys()):
         pid = self.commands_in_progress.get(task_id)
         self.commands_in_progress[task_id] = reason
         logger.info("Canceling command with taskId = {tid}, " \
@@ -217,12 +218,12 @@ class CustomServiceOrchestrator(object):
     """
     configtype_credentials = {}
     if 'serviceLevelParams' in commandJson and 'configuration_credentials' in commandJson['serviceLevelParams']:
-      for config_type, password_properties in commandJson['serviceLevelParams']['configuration_credentials'].items():
+      for config_type, password_properties in list(commandJson['serviceLevelParams']['configuration_credentials'].items()):
         if config_type in commandJson['configurations']:
           value_names = []
           config = commandJson['configurations'][config_type]
           credentials = {}
-          for key_name, value_name in password_properties.items():
+          for key_name, value_name in list(password_properties.items()):
             if key_name == value_name:
               if value_name in config:
                 # password name is the alias
@@ -287,7 +288,7 @@ class CustomServiceOrchestrator(object):
     else:
       commandJson['credentialStoreEnabled'] = "true"
 
-    for config_type, credentials in configtype_credentials.items():
+    for config_type, credentials in list(configtype_credentials.items()):
       config = commandJson['configurations'][config_type]
       if 'role' in commandJson and commandJson['role']:
         roleName = commandJson['role']
@@ -298,7 +299,7 @@ class CustomServiceOrchestrator(object):
         os.remove(file_path)
       provider_path = 'jceks://file{file_path}'.format(file_path=file_path)
       logger.info('provider_path={0}'.format(provider_path))
-      for alias, pwd in credentials.items():
+      for alias, pwd in list(credentials.items()):
         logger.debug("config={0}".format(config))
         pwd = ensure_decrypted(pwd, self.encryption_key)
         protected_pwd = PasswordString(pwd)
@@ -307,7 +308,7 @@ class CustomServiceOrchestrator(object):
                alias, '-value', protected_pwd, '-provider', provider_path)
         logger.info(cmd)
         rmf_shell.checked_call(cmd)
-        os.chmod(file_path, 0644) # group and others should have read access so that the service user can read
+        os.chmod(file_path, 0o644) # group and others should have read access so that the service user can read
       # Add JCEKS provider path instead
       config[self.CREDENTIAL_PROVIDER_PROPERTY_NAME] = provider_path
       config[self.CREDENTIAL_STORE_CLASS_PATH_NAME] = cs_lib_path
@@ -491,7 +492,7 @@ class CustomServiceOrchestrator(object):
       if task_id in self.commands_in_progress:
         logger.debug('Pop with taskId %s', task_id)
         pid = self.commands_in_progress.pop(task_id)
-        if not isinstance(pid, (int, long)):
+        if not isinstance(pid, int):
           reason = pid
           if reason:
             return "\nCommand aborted. Reason: '{0}'".format(reason)
@@ -603,7 +604,7 @@ class CustomServiceOrchestrator(object):
 
     decompressed_map = {}
 
-    for k, v in info.items():
+    for k, v in list(info.items()):
       # Convert from 1-3,5,6-8 to [1,2,3,5,6,7,8]
       indexes = self.convert_range_to_list(v)
       # Convert from [1,2,3,5,6,7,8] to [host1,host2,host3...]
@@ -614,7 +615,7 @@ class CustomServiceOrchestrator(object):
     racks = self.convert_mapped_range_to_list(racks)
     ipv4_addresses = self.convert_mapped_range_to_list(ipv4_addresses)
 
-    ping_ports = map(str, ping_ports)
+    ping_ports = list(map(str, ping_ports))
 
     decompressed_map[self.PING_PORTS_KEY] = ping_ports
     decompressed_map[self.HOSTS_LIST_KEY] = hosts_list
@@ -644,7 +645,7 @@ class CustomServiceOrchestrator(object):
           if not range_bounds[0] or not range_bounds[1]:
             raise AgentException("Broken data in given range, expected - ""m-n"" or ""m"", got: " + str(r))
 
-          result_list.extend(range(int(range_bounds[0]), int(range_bounds[1]) + 1))
+          result_list.extend(list(range(int(range_bounds[0]), int(range_bounds[1]) + 1)))
         elif len(range_bounds) == 1:
           result_list.append((int(range_bounds[0])))
         else:
@@ -685,7 +686,7 @@ class CustomServiceOrchestrator(object):
           index = int(range_indexes[0])
           result_dict[index] = value if not value.isdigit() else int(value)
 
-    return dict(sorted(result_dict.items())).values()
+    return list(dict(sorted(result_dict.items())).values())
 
   def conditionally_remove_command_file(self, command_json_path, command_result):
     """

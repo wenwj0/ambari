@@ -198,13 +198,13 @@ def service(action=None, name=None, user=None, options="", create_pid_dir=False,
   if action != "stop":
     if name == "nfs3":
       Directory(params.hadoop_pid_dir_prefix,
-                mode=0755,
+                mode=0o755,
                 owner=params.root_user,
                 group=params.root_group
       )
     else:
       Directory(params.hadoop_pid_dir_prefix,
-                  mode=0755,
+                  mode=0o755,
                   owner=params.hdfs_user,
                   group=params.user_group
       )
@@ -216,7 +216,7 @@ def service(action=None, name=None, user=None, options="", create_pid_dir=False,
     if create_log_dir:
       if name == "nfs3":
         Directory(log_dir,
-                  mode=0775,
+                  mode=0o775,
                   owner=params.root_user,
                   group=params.user_group)
       else:
@@ -424,6 +424,6 @@ def set_up_zkfc_security(params):
     File(os.path.join(params.hadoop_conf_secure_dir, 'hdfs_jaas.conf'),
          owner=params.hdfs_user,
          group=params.user_group,
-         mode=0644,
+         mode=0o644,
          content=Template("hdfs_jaas.conf.j2")
          )

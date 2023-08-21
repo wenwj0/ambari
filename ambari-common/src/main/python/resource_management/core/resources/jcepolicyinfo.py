@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -20,7 +21,7 @@ Ambari Agent
 """
 
 from resource_management.core import shell
-from ambari_commons import subprocess32
+import subprocess
 
 
 class JcePolicyInfo:
@@ -31,5 +32,5 @@ class JcePolicyInfo:
 
   def is_unlimited_key_jce_policy(self):
     ret = shell.call(
-      self.command_format.format('-tu'), stdout=subprocess32.PIPE, stderr=subprocess32.PIPE, timeout=5, quiet=True)[0]
+      self.command_format.format('-tu'), stdout=subprocess.PIPE, stderr=subprocess32.PIPE, timeout=5, quiet=True)[0]
     return ret == 0

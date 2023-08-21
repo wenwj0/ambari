@@ -67,7 +67,7 @@ storm_server_hosts = default("/clusterHostInfo/nimbus_hosts", [])
 falcon_host =  default('/clusterHostInfo/falcon_server_hosts', [])
 
 has_sqoop_client = 'sqoop-env' in config['configurations']
-has_namenode = not len(namenode_host) == 0
+has_namenode = len(namenode_hosts) > 0
 has_hs = not len(hs_host) == 0
 has_resourcemanager = not len(rm_host) == 0
 has_slaves = not len(slave_hosts) == 0

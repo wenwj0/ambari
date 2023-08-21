@@ -55,16 +55,16 @@ class HbaseServiceCheckDefault(HbaseServiceCheck):
 
     File( format("{exec_tmp_dir}/hbaseSmokeVerify.sh"),
       content = StaticFile("hbaseSmokeVerify.sh"),
-      mode = 0755
+      mode = 0o755
     )
 
     File(hbase_servicecheck_cleanup_file,
       content = StaticFile("hbase-smoke-cleanup.sh"),
-      mode = 0755
+      mode = 0o755
     )
   
     File( hbase_servicecheck_file,
-      mode = 0755,
+      mode = 0o755,
       content = Template('hbase-smoke.sh.j2')
     )
     

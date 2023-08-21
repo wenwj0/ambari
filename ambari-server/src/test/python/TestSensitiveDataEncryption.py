@@ -16,6 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 '''
 import os
+import importlib
 import sys
 
 from ambari_commons.exceptions import FatalException
@@ -23,11 +24,11 @@ from mock.mock import patch, MagicMock, call
 
 with patch.object(os, "geteuid", new=MagicMock(return_value=0)):
   from resource_management.core import sudo
-  reload(sudo)
+  importlib.reload(sudo)
 
 import operator
 import platform
-import StringIO
+import io
 from unittest import TestCase
 os.environ["ROOT"] = ""
 
@@ -77,7 +78,7 @@ with patch.object(platform, "linux_distribution", return_value = MagicMock(retur
 @patch("ambari_server.dbConfiguration_linux.get_postgre_running_status", new = MagicMock(return_value = "running"))
 class TestSensitiveDataEncryption(TestCase):
   def setUp(self):
-    out = StringIO.StringIO()
+    out = io.StringIO()
     sys.stdout = out
 
 

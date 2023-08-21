@@ -15,11 +15,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 '''
+import logging
 import os
 import platform
+import distro
 from mock.mock import patch, MagicMock, call
 from unittest import TestCase
 from ambari_commons.exceptions import FatalException
+import importlib
 
 os.environ["ROOT"] = ""
 
@@ -33,17 +36,17 @@ shutil.copyfile(project_dir+"/ambari-server/conf/unix/ambari.properties", "/tmp/
 # We have to use this import HACK because the filename contains a dash
 _search_file = os_utils.search_file
 os_utils.search_file = MagicMock(return_value="/tmp/ambari.properties")
-with patch.object(platform, "linux_distribution", return_value = MagicMock(return_value=('Redhat', '6.4', 'Final'))):
+with patch.object(distro, "linux_distribution", return_value = MagicMock(return_value=('Redhat', '6.4', 'Final'))):
   with patch("os.path.isdir", return_value = MagicMock(return_value=True)):
     with patch("os.access", return_value = MagicMock(return_value=True)):
       with patch.object(os_utils, "parse_log4j_file", return_value={'ambari.log.dir': '/var/log/ambari-server'}):
-        with patch("platform.linux_distribution", return_value = os_distro_value):
+        with patch("distro.linux_distribution", return_value = os_distro_value):
           with patch("os.symlink"):
             with patch.object(os_utils, "is_service_exist", return_value = True):
               with patch("glob.glob", return_value = ['/etc/init.d/postgresql-9.3']):
                 _ambari_server_ = __import__('ambari-server')
                 os_utils.search_file = _search_file
-                with patch("__builtin__.open"):
+                with patch("builtins.open"):
                   from ambari_commons.exceptions import FatalException, NonFatalException
                   from ambari_server import serverConfiguration
                   serverConfiguration.search_file = _search_file
@@ -56,7 +59,7 @@ from ambari_server.setupMpacks import install_mpack, upgrade_mpack, replay_mpack
 
 with patch.object(os, "geteuid", new=MagicMock(return_value=0)):
   from resource_management.core import sudo
-  reload(sudo)
+  importlib.reload(sudo)
 
 def get_configs():
   test_directory = os.path.dirname(os.path.abspath(__file__))
@@ -83,7 +86,7 @@ class TestMpacks(TestCase):
     try:
       install_mpack(options)
     except FatalException as e:
-      self.assertEquals("Management pack not specified!", e.reason)
+      self.assertEqual("Management pack not specified!", e.reason)
       fail = True
     self.assertTrue(fail)
 
@@ -97,7 +100,7 @@ class TestMpacks(TestCase):
     try:
       install_mpack(options)
     except FatalException as e:
-      self.assertEquals("Management pack could not be downloaded!", e.reason)
+      self.assertEqual("Management pack could not be downloaded!", e.reason)
       fail = True
     self.assertTrue(fail)
 
@@ -232,7 +235,7 @@ class TestMpacks(TestCase):
     try:
       install_mpack(options)
     except FatalException as e:
-      self.assertEquals("Malformed management pack. Root directory missing!", e.reason)
+      self.assertEqual("Malformed management pack. Root directory missing!", e.reason)
       fail = True
     self.assertTrue(fail)
 
@@ -243,7 +246,7 @@ class TestMpacks(TestCase):
     try:
       install_mpack(options)
     except FatalException as e:
-      self.assertEquals("Malformed management pack. Failed to expand management pack!", e.reason)
+      self.assertEqual("Malformed management pack. Failed to expand management pack!", e.reason)
       fail = True
     self.assertTrue(fail)
 
@@ -254,7 +257,7 @@ class TestMpacks(TestCase):
     try:
       install_mpack(options)
     except FatalException as e:
-      self.assertEquals("Malformed management pack {0}. Metadata file missing!".format(options.mpack_path), e.reason)
+      self.assertEqual("Malformed management pack {0}. Metadata file missing!".format(options.mpack_path), e.reason)
       fail = True
     self.assertTrue(fail)
 
@@ -326,7 +329,7 @@ class TestMpacks(TestCase):
     try:
       install_mpack(options)
     except Exception as e:
-      print e
+      print(e)
 
     stacks_directory = configs[serverConfiguration.STACK_LOCATION_KEY]
     common_services_directory = configs[serverConfiguration.COMMON_SERVICES_PATH_PROPERTY]

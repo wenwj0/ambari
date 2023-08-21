@@ -128,7 +128,7 @@ if 'cluster-env' in config['configurations'] and \
 else:
   ams_collector_hosts = ",".join(default("/clusterHostInfo/metrics_collector_hosts", []))
 
-has_namenode = not len(namenode_host) == 0
+has_namenode = len(namenode_hosts) > 0
 has_hdfs_clients = len(hdfs_client_hosts) > 0
 has_hdfs = has_hdfs_clients or has_namenode
 has_resourcemanager = not len(rm_host) == 0
@@ -300,7 +300,7 @@ hdfs_principal_name = default('/configurations/hadoop-env/hdfs_principal_name', 
 hdfs_site = config['configurations']['hdfs-site']
 smoke_user =  config['configurations']['cluster-env']['smokeuser']
 smoke_hdfs_user_dir = format("/user/{smoke_user}")
-smoke_hdfs_user_mode = 0770
+smoke_hdfs_user_mode = 0o770
 
 
 ##### Namenode RPC ports - metrics config section start #####

@@ -332,7 +332,7 @@ def execute(configurations={}, parameters={}, host_name=None):
     response = conn.getresponse()
     data = response.read()
     conn.close()
-  except Exception, e:
+  except Exception as e:
     logger.info(str(e))
     return (RESULT_STATE_UNKNOWN, ["Unable to retrieve metrics from the Ambari Metrics service."])
 

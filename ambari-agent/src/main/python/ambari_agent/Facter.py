@@ -22,18 +22,18 @@ import logging
 import os
 import getpass
 import platform
-import hostname
+from . import hostname
 import re
 import shlex
 import socket
 import multiprocessing
-from ambari_commons import subprocess32
+import subprocess
 from ambari_commons.shell import shellRunner
 import time
 import uuid
 import json
 import glob
-from AmbariConfig import AmbariConfig
+from .AmbariConfig import AmbariConfig
 from ambari_commons import OSCheck, OSConst
 from ambari_commons.os_family_impl import OsFamilyImpl
 
@@ -42,11 +42,11 @@ log = logging.getLogger()
 
 def run_os_command(cmd):
   shell = (type(cmd) == str)
-  process = subprocess32.Popen(cmd,
+  process = subprocess.Popen(cmd,
                              shell=shell,
-                             stdout=subprocess32.PIPE,
-                             stdin=subprocess32.PIPE,
-                             stderr=subprocess32.PIPE
+                             stdout=subprocess.PIPE,
+                             stdin=subprocess.PIPE,
+                             stderr=subprocess.PIPE
   )
   (stdoutdata, stderrdata) = process.communicate()
   return process.returncode, stdoutdata, stderrdata
@@ -72,7 +72,7 @@ class Facter(object):
       else:
         raise Exception("No config found, use default")
 
-    except Exception, err:
+    except Exception as err:
       log.warn(err)
     return config
 
@@ -146,7 +146,7 @@ class Facter(object):
   def getMacAddress(self):
     mac = uuid.getnode()
     if uuid.getnode() == mac:
-      mac = ':'.join('%02X' % ((mac >> 8 * i) & 0xff) for i in reversed(xrange(6)))
+      mac = ':'.join('%02X' % ((mac >> 8 * i) & 0xff) for i in reversed(range(6)))
     else:
       mac = 'UNKNOWN'
     return mac
@@ -158,11 +158,11 @@ class Facter(object):
 
   # Return uptime hours
   def getUptimeHours(self):
-    return self.getUptimeSeconds() / (60 * 60)
+    return self.getUptimeSeconds() // (60 * 60)
 
   # Return uptime days
   def getUptimeDays(self):
-    return self.getUptimeSeconds() / (60 * 60 * 24)
+    return self.getUptimeSeconds() // (60 * 60 * 24)
 
   def getSystemResourceIfExists(self, systemResources, key, default):
     if key in systemResources:
@@ -192,7 +192,7 @@ class Facter(object):
             for filename in glob.glob('%s/*.json' % systemResourceDir):
               with open(filename) as fp:
                 data = json.loads(fp.read())
-                for (key, value) in data.items():
+                for (key, value) in list(data.items()):
                   systemResources[key] = data[key]
           except:
             log.warn(
@@ -259,12 +259,12 @@ class Facter(object):
   #Convert kB to GB
   @staticmethod
   def convertSizeKbToGb(size):
-    return "%0.2f GB" % round(float(size) / (1024.0 * 1024.0), 2)
+    return "%0.2f GB" % round(float(size) // (1024.0 * 1024.0), 2)
 
   #Convert MB to GB
   @staticmethod
   def convertSizeMbToGb(size):
-    return "%0.2f GB" % round(float(size) / (1024.0), 2)
+    return "%0.2f GB" % round(float(size) // (1024.0), 2)
 
 @OsFamilyImpl(os_family=OSConst.WINSRV_FAMILY)
 class FacterWindows(Facter):
@@ -484,26 +484,27 @@ class FacterLinux(Facter):
 
     for ifname in self.getInterfaces().split(","):
       if ifname.strip():
-        ip_address_by_ifname = self.get_ip_address_by_ifname(ifname)
+        ip_address_by_ifname = self.get_ip_address_by_ifname(ifname.replace("\'","").encode())
         if ip_address_by_ifname is not None:
           if primary_ip == ip_address_by_ifname.strip():
-            return socket.inet_ntoa(fcntl.ioctl(socket.socket(socket.AF_INET, socket.SOCK_DGRAM), 35099, struct.pack('256s', ifname))[20:24])
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            inet = fcntl.ioctl(s.fileno(), 35099, struct.pack('256s', ifname.replace("\'","").encode()))
+            netmask_value = socket.inet_ntoa(inet[20:24])
+            return netmask_value
 
     return None
       
   # Return IP by interface name
   def get_ip_address_by_ifname(self, ifname):
+    import socket
     import fcntl
     import struct
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     ip_address_by_ifname = None
     try:
-      ip_address_by_ifname = socket.inet_ntoa(fcntl.ioctl(
-        s.fileno(),
-        0x8915,  # SIOCGIFADDR
-        struct.pack('256s', ifname[:15])
-        )[20:24])
-    except Exception, err:
+      s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+      inet = fcntl.ioctl(s.fileno(), 0x8915, struct.pack('256s', ifname[:15]))
+      ip_address_by_ifname = socket.inet_ntoa(inet[20:24])
+    except Exception as err:
       log.warn("Can't get the IP address for {0}".format(ifname))
     
     return ip_address_by_ifname
@@ -590,7 +591,7 @@ class FacterLinux(Facter):
 
 def main(argv=None):
   config = None
-  print Facter(config).facterInfo()
+  print(Facter(config).facterInfo())
 
 
 if __name__ == '__main__':

@@ -46,7 +46,7 @@ class RepositoryProvider(Provider):
   def action_create(self):
     with tempfile.NamedTemporaryFile() as tmpf:
       with tempfile.NamedTemporaryFile() as old_repo_tmpf:
-        for repo_file_path, repo_file_content in RepositoryProvider.repo_files_content.iteritems():
+        for repo_file_path, repo_file_content in RepositoryProvider.repo_files_content.items():
           repo_file_content = repo_file_content.strip()
 
           File(tmpf.name,

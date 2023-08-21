@@ -1,6 +1,5 @@
 """Implementation of JSONEncoder
 """
-from __future__ import absolute_import
 import re
 from operator import itemgetter
 # Do not import Decimal directly to avoid reload issues

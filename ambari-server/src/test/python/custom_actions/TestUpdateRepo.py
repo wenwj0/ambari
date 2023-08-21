@@ -92,8 +92,8 @@ class TestUpdateRepo(TestCase):
       updateRepo.actionexecute(None)
 
     self.assertTrue(file_mock.called)
-    self.assertEquals(file_mock.call_args[0][0], "/etc/yum.repos.d/HDP.repo")
-    self.assertEquals(structured_out_mock.call_args[0][0], {'repo_update': {'message': 'Repository files successfully updated!', 'exit_code': 0}})
+    self.assertEqual(file_mock.call_args[0][0], "/etc/yum.repos.d/HDP.repo")
+    self.assertEqual(structured_out_mock.call_args[0][0], {'repo_update': {'message': 'Repository files successfully updated!', 'exit_code': 0}})
 
     ###### invalid repo info
     file_mock.reset_mock()
@@ -109,7 +109,7 @@ class TestUpdateRepo(TestCase):
     try:
       with Environment('/') as env:
         updateRepo.actionexecute(None)
-    except Exception, exception:
+    except Exception as exception:
       failed = True
 
     self.assertFalse(file_mock.called)
