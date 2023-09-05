@@ -7,12 +7,12 @@ Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 ===================================================================
 diff --git a/ambari-common/src/main/python/ambari_commons/repo_manager/__init__.py b/ambari-common/src/main/python/ambari_commons/repo_manager/__init__.py
 --- a/ambari-common/src/main/python/ambari_commons/repo_manager/__init__.py	(revision 24b36ab3bb79a175d50934fa3a2b91cd51ae4000)
-+++ b/ambari-common/src/main/python/ambari_commons/repo_manager/__init__.py	(date 1693916197976)
++++ b/ambari-common/src/main/python/ambari_commons/repo_manager/__init__.py	(date 1693917486906)
 @@ -65,6 +65,8 @@
        return ZypperManager()
      if OSCheck.is_in_family(os_family, OSConst.REDHAT_FAMILY):
        return YumManager()
-+    if OSCheck.is_in_family(os_family, OSConst.REDHAT_FAMILY):
++    if OSCheck.is_in_family(os_family, OSConst.OPENEULER_FAMILY):
 +      return YumManager()
      if OSCheck.is_in_family(os_family, OSConst.WINSRV_FAMILY):
        return ChocoManager()
