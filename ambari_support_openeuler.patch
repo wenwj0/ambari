@@ -1,0 +1,164 @@
+Subject: [PATCH] ambari support openeuler
+---
+Index: ambari-common/src/main/python/ambari_commons/repo_manager/__init__.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-common/src/main/python/ambari_commons/repo_manager/__init__.py b/ambari-common/src/main/python/ambari_commons/repo_manager/__init__.py
+--- a/ambari-common/src/main/python/ambari_commons/repo_manager/__init__.py	(revision 24b36ab3bb79a175d50934fa3a2b91cd51ae4000)
++++ b/ambari-common/src/main/python/ambari_commons/repo_manager/__init__.py	(date 1693916197976)
+@@ -65,6 +65,8 @@
+       return ZypperManager()
+     if OSCheck.is_in_family(os_family, OSConst.REDHAT_FAMILY):
+       return YumManager()
++    if OSCheck.is_in_family(os_family, OSConst.REDHAT_FAMILY):
++      return YumManager()
+     if OSCheck.is_in_family(os_family, OSConst.WINSRV_FAMILY):
+       return ChocoManager()
+ 
+Index: ambari-server/src/main/python/ambari_server/utils.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/python/ambari_server/utils.py b/ambari-server/src/main/python/ambari_server/utils.py
+--- a/ambari-server/src/main/python/ambari_server/utils.py	(revision 24b36ab3bb79a175d50934fa3a2b91cd51ae4000)
++++ b/ambari-server/src/main/python/ambari_server/utils.py	(date 1693916197888)
+@@ -56,6 +56,8 @@
+     return '/etc/postgresql'
+   elif OSCheck.is_redhat_family():
+     return '/etc/rc.d/init.d/postgresql'
++  elif OSCheck.is_openeuler_family():
++    return '/etc/pam.d/postgresql'
+   elif OSCheck.is_suse_family():
+     return '/etc/init.d/postgresql'
+   else:
+Index: ambari-common/src/main/python/resource_management/libraries/providers/__init__.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-common/src/main/python/resource_management/libraries/providers/__init__.py b/ambari-common/src/main/python/resource_management/libraries/providers/__init__.py
+--- a/ambari-common/src/main/python/resource_management/libraries/providers/__init__.py	(revision 24b36ab3bb79a175d50934fa3a2b91cd51ae4000)
++++ b/ambari-common/src/main/python/resource_management/libraries/providers/__init__.py	(date 1693916197915)
+@@ -27,6 +27,9 @@
+   redhat=dict(
+     Repository="resource_management.libraries.providers.repository.RhelRepositoryProvider",
+   ),
++  openeuler=dict(
++    Repository="resource_management.libraries.providers.repository.RhelRepositoryProvider",
++  ),
+   suse=dict(
+     Repository="resource_management.libraries.providers.repository.SuseRepositoryProvider",
+   ),
+Index: ambari-common/src/main/python/ambari_commons/os_utils.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-common/src/main/python/ambari_commons/os_utils.py b/ambari-common/src/main/python/ambari_commons/os_utils.py
+--- a/ambari-common/src/main/python/ambari_commons/os_utils.py	(revision 24b36ab3bb79a175d50934fa3a2b91cd51ae4000)
++++ b/ambari-common/src/main/python/ambari_commons/os_utils.py	(date 1693916198003)
+@@ -171,6 +171,8 @@
+     ambari_repo_file = "/etc/apt/sources.list.d/ambari.list"
+   elif OSCheck.is_redhat_family():
+     ambari_repo_file = "/etc/yum.repos.d/ambari.repo"
++  elif OSCheck.is_openeuler_family():
++    ambari_repo_file = "/etc/yum.repos.d/ambari.repo"
+   elif OSCheck.is_suse_family():
+     ambari_repo_file = "/etc/zypp/repos.d/ambari.repo"
+   elif OSCheck.is_windows_family():
+Index: ambari-server/src/main/python/bootstrap.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-server/src/main/python/bootstrap.py b/ambari-server/src/main/python/bootstrap.py
+--- a/ambari-server/src/main/python/bootstrap.py	(revision 24b36ab3bb79a175d50934fa3a2b91cd51ae4000)
++++ b/ambari-server/src/main/python/bootstrap.py	(date 1693916197942)
+@@ -425,6 +425,8 @@
+   def getRepoDir(self):
+     if OSCheck.is_redhat_family():
+       return "/etc/yum.repos.d"
++    if OSCheck.is_openeuler_family():
++      return "/etc/yum.repos.d"
+     elif OSCheck.is_suse_family():
+       return "/etc/zypp/repos.d"
+     elif OSCheck.is_ubuntu_family():
+Index: ambari-common/src/main/python/ambari_commons/resources/os_family.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-common/src/main/python/ambari_commons/resources/os_family.json b/ambari-common/src/main/python/ambari_commons/resources/os_family.json
+--- a/ambari-common/src/main/python/ambari_commons/resources/os_family.json	(revision 24b36ab3bb79a175d50934fa3a2b91cd51ae4000)
++++ b/ambari-common/src/main/python/ambari_commons/resources/os_family.json	(date 1693916197869)
+@@ -41,6 +41,14 @@
+           2
+         ]
+       },
++     "openeuler": {
++       "distro": [
++        "openeuler"
++       ],
++       "versions": [
++         22
++       ]
++      },
+       "debian": {
+         "extends" : "ubuntu",
+         "distro": [
+Index: ambari-common/src/main/python/ambari_commons/os_check.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/ambari-common/src/main/python/ambari_commons/os_check.py b/ambari-common/src/main/python/ambari_commons/os_check.py
+--- a/ambari-common/src/main/python/ambari_commons/os_check.py	(revision 24b36ab3bb79a175d50934fa3a2b91cd51ae4000)
++++ b/ambari-common/src/main/python/ambari_commons/os_check.py	(date 1693916197801)
+@@ -78,6 +78,7 @@
+ # Linux specific releases, caching them since they are execution invariants
+ _IS_ORACLE_LINUX = os.path.exists('/etc/oracle-release')
+ _IS_REDHAT_LINUX = os.path.exists('/etc/redhat-release')
++_IS_OPENEULER_LINUX = os.path.exists('/etc/openEuler-release')
+ 
+ OS_RELEASE_FILE = "/etc/os-release"
+ 
+@@ -87,6 +88,9 @@
+ def _is_redhat_linux():
+   return _IS_REDHAT_LINUX
+ 
++def _is_openeuler_linux():
++  return _IS_OPENEULER_LINUX
++
+ def _is_powerpc():
+   return platform.processor() == 'powerpc' or platform.machine().startswith('ppc')
+ 
+@@ -248,6 +252,10 @@
+       operatingSystem = 'sles'
+     elif operatingSystem.startswith('red hat enterprise linux'):
+       operatingSystem = 'redhat'
++    elif operatingSystem.startswith('openEuler release'):
++      operatingSystem = 'openeuler'
++    elif operatingSystem.startswith('openeuler'):
++      operatingSystem = 'openeuler'
+     elif operatingSystem.startswith('darwin'):
+       operatingSystem = 'mac'
+ 
+@@ -357,6 +365,15 @@
+      This is safe check for redhat family, doesn't generate exception
+     """
+     return OSCheck.is_in_family(OSCheck.get_os_family(), OSConst.REDHAT_FAMILY)
++
++  @staticmethod
++  def is_openeuler_family():
++    """
++     Return true if it is so or false if not
++
++     This is safe check for openeuler family, doesn't generate exception
++    """
++    return OSCheck.is_in_family(OSCheck.get_os_family(), OSConst.OPENEULER_FAMILY)
+   
+   @staticmethod
+   def is_in_family(current_family, family):
