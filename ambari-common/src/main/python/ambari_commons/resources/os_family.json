@@ -41,6 +41,14 @@
           2
         ]
       },
+     "openeuler": {
+       "distro": [
+        "openeuler"
+       ],
+       "versions": [
+         22
+       ]
+      },
       "debian": {
         "extends" : "ubuntu",
         "distro": [

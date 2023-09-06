@@ -56,6 +56,8 @@ def get_pg_hba_init_files():
     return '/etc/postgresql'
   elif OSCheck.is_redhat_family():
     return '/etc/rc.d/init.d/postgresql'
+  elif OSCheck.is_openeuler_family():
+    return '/etc/pam.d/postgresql'
   elif OSCheck.is_suse_family():
     return '/etc/init.d/postgresql'
   else:
